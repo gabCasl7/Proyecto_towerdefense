@@ -1,4 +1,3 @@
-# game_manager.py
 import pygame
 from enemies import Enemy, FastEnemy, TankEnemy
 from towers import Tower, SniperTower
@@ -18,8 +17,8 @@ class GameManager:
         self.spawn_timer = 0
 
     def add_tower(self, x, y, tower_type):
-        # Evitar construir sobre el panel superior
-        if y < 50: return 
+        # Evitar construir sobre el nuevo panel superior más grande (65px)
+        if y < 65: return 
         
         if tower_type == "BASIC" and self.money >= 50:
             self.towers.append(Tower(x, y))
@@ -35,7 +34,7 @@ class GameManager:
             if self.spawn_timer >= 50: 
                 # Lógica de oleadas
                 if self.wave % 2 == 0 and self.enemies_to_spawn % 4 == 0:
-                    self.enemies.append(TankEnemy()) # Sale un tanque de vez en cuando en oleadas pares
+                    self.enemies.append(TankEnemy()) 
                 elif self.enemies_to_spawn % 3 == 0:
                     self.enemies.append(FastEnemy())
                 else:
@@ -83,12 +82,14 @@ class GameManager:
         for enemy in self.enemies:
             enemy.draw(surface)
 
-        # Dibujar Panel Superior (UI)
-        pygame.draw.rect(surface, UI_BG, (0, 0, WIDTH, 45))
-        pygame.draw.line(surface, BLACK, (0, 45), (WIDTH, 45), 3)
+        # --- DIBUJAR PANEL SUPERIOR MEJORADO (UI) ---
+        pygame.draw.rect(surface, UI_BG, (0, 0, WIDTH, 65)) # Más alto
+        pygame.draw.line(surface, BLACK, (0, 65), (WIDTH, 65), 3)
         
-        ui_text = font.render(f"❤️ Vidas: {self.lives}  |  💰 Oro: ${self.money}  |  ⚔️ Oleada: {self.wave}/{WIN_WAVE}", True, WHITE)
-        surface.blit(ui_text, (15, 12))
+        # Fila 1: Estadísticas vitales (Separadas entre sí)
+        ui_text = font.render(f"❤️ Vidas: {self.lives}       💰 Oro: ${self.money}       ⚔️ Oleada: {self.wave}/{WIN_WAVE}", True, WHITE)
+        surface.blit(ui_text, (20, 10))
         
-        info_text = font.render("Click Izq: Torre Básica ($50) | Click Der: Francotirador ($100)", True, (200, 200, 200))
-        surface.blit(info_text, (WIDTH - 550, 12))
+        # Fila 2: Información de las torres
+        info_text = font.render("Controles: Click Izq -> Torre Básica ($50)  |  Click Der -> Francotirador ($100)", True, (200, 200, 200))
+        surface.blit(info_text, (20, 38))
