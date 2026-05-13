@@ -1,10 +1,11 @@
 import pygame
+import math  # <- Importante para medir distancias
 from enemies import Enemy, FastEnemy, TankEnemy
 from towers import Tower, SniperTower
 from settings import *
 
 class GameManager:
-    def __init__(self):
+    def _init_(self):
         self.reset_game()
 
     def reset_game(self):
@@ -16,9 +17,41 @@ class GameManager:
         self.enemies_to_spawn = 5
         self.spawn_timer = 0
 
+    def is_valid_position(self, x, y):
+        """
+        Verifica si se puede construir en las coordenadas x, y.
+        """
+        # 1. Evitar panel superior de la interfaz
+        if y < 65: 
+            return False
+            
+        # 2. Evitar el camino de los enemigos
+        path_margin = 35  # Área prohibida (grosor del camino + radio de la torre)
+        for i in range(len(PATH) - 1):
+            x1, y1 = PATH[i]
+            x2, y2 = PATH[i+1]
+            
+            # Calculamos los límites (caja de colisión) para cada tramo del camino
+            min_x = min(x1, x2) - path_margin
+            max_x = max(x1, x2) + path_margin
+            min_y = min(y1, y2) - path_margin
+            max_y = max(y1, y2) + path_margin
+            
+            if min_x <= x <= max_x and min_y <= y <= max_y:
+                return False  # El clic chocó con el camino
+                
+        # 3. Evitar colocar una torre sobre otra torre
+        for tower in self.towers:
+            # Si la distancia entre el clic y una torre existente es menor a 30px
+            if math.hypot(tower.x - x, tower.y - y) < 30:
+                return False  # Chocó con otra torre
+                
+        return True  # La posición es perfecta
+
     def add_tower(self, x, y, tower_type):
-        # Evitar construir sobre el nuevo panel superior más grande (65px)
-        if y < 65: return 
+        # Usamos nuestra nueva función para validar antes de colocarla
+        if not self.is_valid_position(x, y):
+            return  # Se cancela la construcción silenciosamente
         
         if tower_type == "BASIC" and self.money >= 50:
             self.towers.append(Tower(x, y))
@@ -83,10 +116,10 @@ class GameManager:
             enemy.draw(surface)
 
         # --- DIBUJAR PANEL SUPERIOR MEJORADO (UI) ---
-        pygame.draw.rect(surface, UI_BG, (0, 0, WIDTH, 65)) # Más alto
+        pygame.draw.rect(surface, UI_BG, (0, 0, WIDTH, 65))
         pygame.draw.line(surface, BLACK, (0, 65), (WIDTH, 65), 3)
         
-        # Fila 1: Estadísticas vitales (Separadas entre sí)
+        # Fila 1: Estadísticas vitales
         ui_text = font.render(f"❤️ Vidas: {self.lives}       💰 Oro: ${self.money}       ⚔️ Oleada: {self.wave}/{WIN_WAVE}", True, WHITE)
         surface.blit(ui_text, (20, 10))
         
