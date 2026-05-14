@@ -8,10 +8,10 @@ class Enemy:
         self.path_index = 0
         self.x, self.y = self.path[0]
         # Variables de velocidad inteligente
-        self.base_speed = 1.5
+        self.base_speed = 2.0
         self.current_speed = self.base_speed
         
-        self.max_hp = 30
+        self.max_hp = 45
         self.hp = self.max_hp
         self.reward = 5  # ORO REDUCIDO (antes 10)
         self.active = True
@@ -56,7 +56,7 @@ class FastEnemy(Enemy):
         super().__init__()
         self.base_speed = 3.0
         self.current_speed = self.base_speed
-        self.max_hp = 15
+        self.max_hp = 25 
         self.hp = self.max_hp
         self.reward = 8  # ORO REDUCIDO (antes 15)
         self.color = (255, 165, 0) # Naranja
@@ -65,7 +65,7 @@ class FastEnemy(Enemy):
 class TankEnemy(Enemy):
     def __init__(self):
         super().__init__()
-        self.base_speed = 0.8 # Muy lento
+        self.base_speed = 1.0# Muy lento
         self.current_speed = self.base_speed
         self.max_hp = 120 # Mucha vida
         self.hp = self.max_hp
