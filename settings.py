@@ -5,7 +5,7 @@ WIDTH, HEIGHT = 800, 600
 FPS = 60
 
 # Configuración inicial del juego
-START_MONEY = 100
+START_MONEY = 150
 START_LIVES = 8
 WIN_WAVE = 5 
 
