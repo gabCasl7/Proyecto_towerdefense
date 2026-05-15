@@ -111,4 +111,5 @@ class GameManager:
         ui_text = font.render(f"❤️ Vidas: {self.lives}       💰 Oro: ${self.money}       ⚔️ Oleada: {self.wave}/{WIN_WAVE}", True, WHITE)
         surface.blit(ui_text, (20, 10))
         
-        info_text = font.render("Controles:
+        info_text = font.render("Controles: Click Izq -> Torre Básica ($50)  |  Click Der -> Francotirador ($100)", True, (200, 200, 200))
+        surface.blit(info_text, (20, 38))
