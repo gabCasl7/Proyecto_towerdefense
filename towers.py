@@ -1,10 +1,9 @@
-# towers.py
 import pygame
 import math
-from settings import WHITE
+from settings import WHITE, BLACK
 
 class Tower:
-    def __init__(self, x, y):
+    def _init_(self, x, y):
         self.x = x
         self.y = y
         self.range = 130
@@ -12,21 +11,30 @@ class Tower:
         self.cooldown = 40
         self.timer = 0
         self.cost = 50
-        self.color = (50, 150, 255)
         self.laser_target = None
-        self.laser_timer = 0 # Para animar el disparo
+        self.laser_timer = 0 
 
     def draw(self, surface):
-        # Dibujar base
-        pygame.draw.rect(surface, (40, 40, 40), (self.x-15, self.y-15, 30, 30), border_radius=5)
-        pygame.draw.circle(surface, self.color, (self.x, self.y), 12)
+        # 1. Base de la torre (Forma de castillo de piedra)
+        pygame.draw.rect(surface, (80, 80, 80), (self.x-15, self.y-15, 30, 30)) # Bloque central
+        pygame.draw.rect(surface, (60, 60, 60), (self.x-15, self.y+5, 30, 10))  # Sombra inferior
+        # Almenas (puntas del castillo)
+        pygame.draw.rect(surface, (100, 100, 100), (self.x-15, self.y-20, 8, 10))
+        pygame.draw.rect(surface, (100, 100, 100), (self.x-4, self.y-20, 8, 10))
+        pygame.draw.rect(surface, (100, 100, 100), (self.x+7, self.y-20, 8, 10))
         
-        # Efecto visual de láser
+        # Centro (cañón giratorio simulado)
+        pygame.draw.circle(surface, (40, 40, 40), (self.x, self.y), 8)
+
+        # 2. Efecto visual de láser y cañón
         if self.laser_timer > 0 and self.laser_target:
-            pygame.draw.line(surface, (0, 255, 255), (self.x, self.y), self.laser_target, 3)
+            # Dibujar un "cañón" apuntando
+            pygame.draw.line(surface, (200, 200, 200), (self.x, self.y), (self.x + (self.laser_target[0]-self.x)*0.3, self.y + (self.laser_target[1]-self.y)*0.3), 4)
+            # Dibujar láser
+            pygame.draw.line(surface, (0, 255, 255), (self.x, self.y), self.laser_target, 2)
             self.laser_timer -= 1
 
-        # Si el mouse está encima, mostrar el rango
+        # Rango
         mouse_pos = pygame.mouse.get_pos()
         if math.hypot(mouse_pos[0] - self.x, mouse_pos[1] - self.y) < 15:
             pygame.draw.circle(surface, WHITE, (self.x, self.y), self.range, 1)
@@ -41,20 +49,27 @@ class Tower:
                 enemy.hp -= self.damage
                 self.timer = self.cooldown
                 self.laser_target = (int(enemy.x), int(enemy.y))
-                self.laser_timer = 5 # El láser dura 5 frames
+                self.laser_timer = 5 
                 break
 
 class SniperTower(Tower):
-    def __init__(self, x, y):
-        super().__init__(x, y)
+    def _init_(self, x, y):
+        super()._init_(x, y)
         self.range = 280
         self.damage = 35
         self.cooldown = 100
         self.cost = 100
-        self.color = (180, 50, 255) # Morado
         
     def draw(self, surface):
-        super().draw(surface)
+        # Base circular futurista
+        pygame.draw.circle(surface, (50, 50, 50), (self.x, self.y), 16)
+        pygame.draw.circle(surface, (100, 50, 150), (self.x, self.y), 12) # Núcleo morado
+        pygame.draw.polygon(surface, (180, 180, 180), [(self.x, self.y-5), (self.x-5, self.y+5), (self.x+5, self.y+5)])
+        
         if self.laser_timer > 0 and self.laser_target:
-            # El francotirador tiene un láser rojo más grueso
-            pygame.draw.line(surface, (255, 0, 0), (self.x, self.y), self.laser_target, 4)
+            pygame.draw.line(surface, (255, 0, 0), (self.x, self.y), self.laser_target, 3)
+            self.laser_timer -= 1
+            
+        mouse_pos = pygame.mouse.get_pos()
+        if math.hypot(mouse_pos[0] - self.x, mouse_pos[1] - self.y) < 15:
+            pygame.draw.circle(surface, (255, 100, 100), (self.x, self.y), self.range, 1)
