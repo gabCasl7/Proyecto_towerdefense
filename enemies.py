@@ -14,33 +14,22 @@ class Enemy:
         self.hp = self.max_hp
         self.reward = 5  
         self.active = True
-        self.color = (200, 50, 50) 
-        self.radius = 12
 
-    def move(self, towers): # <-- ¡Ahora recibe la lista de torres!
+    def move(self, towers):
         if self.path_index < len(self.path) - 1:
             target_x, target_y = self.path[self.path_index + 1]
             dx, dy = target_x - self.x, target_y - self.y
             dist = math.hypot(dx, dy)
             
-            # --- INTELIGENCIA ARTIFICIAL DE MOVIMIENTO ---
-            # 1. Comprobar si hay una torre cerca para "huir"
             near_tower = False
             for tower in towers:
-                # Si está dentro del rango de disparo de alguna torre (o a punto de entrar)
                 if math.hypot(tower.x - self.x, tower.y - self.y) <= tower.range + 15:
                     near_tower = True
-                    break # Solo necesitamos detectar una torre para acelerar
+                    break 
             
-            if near_tower:
-                # ¡Acelera al 180% de su velocidad para escapar!
-                self.current_speed = self.base_speed * 1.8 
-            elif dist < 40:
-                # Frena en las curvas si no hay peligro inmediato
-                self.current_speed = self.base_speed * 0.6  
-            else:
-                # Velocidad normal en rectas
-                self.current_speed = self.base_speed * 1.3  
+            if near_tower: self.current_speed = self.base_speed * 1.8 
+            elif dist < 40: self.current_speed = self.base_speed * 0.6  
+            else: self.current_speed = self.base_speed * 1.3  
 
             if dist < self.current_speed:
                 self.path_index += 1
@@ -48,16 +37,23 @@ class Enemy:
                 self.x += (dx / dist) * self.current_speed
                 self.y += (dy / dist) * self.current_speed
         else:
-            self.active = False # Llega a la base
+            self.active = False 
 
     def draw(self, surface):
-        pygame.draw.circle(surface, BLACK, (int(self.x), int(self.y)), self.radius + 2)
-        pygame.draw.circle(surface, self.color, (int(self.x), int(self.y)), self.radius)
+        # DIBUJO DE SOLDADITO BÁSICO
+        # Cuerpo y mochila
+        pygame.draw.rect(surface, (30, 80, 30), (self.x-8, self.y-8, 16, 16), border_radius=3)
+        pygame.draw.rect(surface, (80, 60, 40), (self.x-10, self.y-5, 4, 10)) # Mochila
+        # Cabeza (Casco)
+        pygame.draw.circle(surface, (50, 100, 50), (int(self.x+2), int(self.y)), 6)
+        pygame.draw.circle(surface, (255, 200, 150), (int(self.x+4), int(self.y)), 3) # Cara
         
+        self.draw_health(surface)
+
+    def draw_health(self, surface):
         health_ratio = self.hp / self.max_hp
-        pygame.draw.rect(surface, (255, 0, 0), (self.x - 15, self.y - 25, 30, 6))
-        pygame.draw.rect(surface, (0, 255, 0), (self.x - 15, self.y - 25, 30 * health_ratio, 6))
-        pygame.draw.rect(surface, BLACK, (self.x - 15, self.y - 25, 30, 6), 1)
+        pygame.draw.rect(surface, (255, 0, 0), (self.x - 15, self.y - 20, 30, 4))
+        pygame.draw.rect(surface, (0, 255, 0), (self.x - 15, self.y - 20, 30 * health_ratio, 4))
 
 class FastEnemy(Enemy):
     def __init__(self):
@@ -67,8 +63,19 @@ class FastEnemy(Enemy):
         self.max_hp = 15
         self.hp = self.max_hp
         self.reward = 8  
-        self.color = (255, 165, 0) 
-        self.radius = 10
+
+    def draw(self, surface):
+        # DIBUJO DE SCOUT / BUGGY LIGERO
+        # Llantas negras
+        pygame.draw.rect(surface, BLACK, (self.x-10, self.y-12, 6, 6))
+        pygame.draw.rect(surface, BLACK, (self.x+4, self.y-12, 6, 6))
+        pygame.draw.rect(surface, BLACK, (self.x-10, self.y+6, 6, 6))
+        pygame.draw.rect(surface, BLACK, (self.x+4, self.y+6, 6, 6))
+        # Chasis amarillo
+        pygame.draw.rect(surface, (255, 200, 0), (self.x-8, self.y-10, 16, 20), border_radius=2)
+        pygame.draw.rect(surface, (100, 150, 255), (self.x-4, self.y-5, 8, 8)) # Parabrisas
+        
+        self.draw_health(surface)
 
 class TankEnemy(Enemy):
     def __init__(self):
@@ -78,5 +85,16 @@ class TankEnemy(Enemy):
         self.max_hp = 120 
         self.hp = self.max_hp
         self.reward = 15 
-        self.color = (100, 100, 100) 
-        self.radius = 18
+
+    def draw(self, surface):
+        # DIBUJO DE TANQUE PESADO
+        # Orugas grises
+        pygame.draw.rect(surface, (50, 50, 50), (self.x-15, self.y-18, 30, 8), border_radius=2)
+        pygame.draw.rect(surface, (50, 50, 50), (self.x-15, self.y+10, 30, 8), border_radius=2)
+        # Chasis central oscuro
+        pygame.draw.rect(surface, (80, 90, 80), (self.x-12, self.y-14, 24, 28))
+        # Torreta verde oscura
+        pygame.draw.circle(surface, (40, 60, 40), (int(self.x), int(self.y)), 10)
+        pygame.draw.rect(surface, (30, 30, 30), (self.x+5, self.y-3, 15, 6)) # Cañón
+        
+        self.draw_health(surface)
