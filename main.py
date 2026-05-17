@@ -75,13 +75,13 @@ def main():
 
         elif state == "GAME_OVER":
             screen.fill((50, 10, 10)) 
-            msg = font_title.render("¡DERROTA!", True, (255, 50, 50))
+            msg = font_title.render("¡DERROTA! eres un noob!", True, (255, 50, 50))
             screen.blit(msg, (WIDTH//2 - msg.get_width()//2, 200))
             btn_restart.draw(screen)
 
         elif state == "WIN":
             screen.fill((10, 50, 10)) 
-            msg = font_title.render("¡VICTORIA!", True, (50, 255, 50))
+            msg = font_title.render("¡VICTORIA! eres un crack!", True, (50, 255, 50))
             screen.blit(msg, (WIDTH//2 - msg.get_width()//2, 200))
             btn_restart.draw(screen)
 
